@@ -6,191 +6,158 @@
   <title>Niroq Dictionary</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Georgia', serif;
       margin: 0;
-      padding: 0;
+      background: #f4f4f4;
     }
 
     .container {
       max-width: 1200px;
-      margin: 50px auto;
-      padding: 30px;
-      background-color: #ffffff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: auto;
+      padding: 20px;
+      background: white;
       border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
     }
 
     h1 {
       text-align: center;
-      font-size: 2.5em;
-      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
     }
 
     .alphabetical-nav {
-      font-size: 1.1em;
-      margin-bottom: 20px;
       text-align: center;
-      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
     .alphabetical-nav a {
-      margin: 5px 8px;
+      margin: 0 6px;
       text-decoration: none;
       color: #333;
       font-weight: bold;
-      display: inline-block;
     }
 
     .alphabetical-nav a:hover {
-      color: #4CAF50;
-    }
-
-    .letter-section {
-      margin-top: 40px;
-    }
-
-    .letter-title {
-      font-size: 1.8em;
-      color: #333;
-      margin-top: 40px;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
+      color: #007BFF;
     }
 
     .dictionary-wrapper {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
-      margin-top: 10px;
+      gap: 10px;
     }
 
     .word-card {
-      width: 150px;
-      margin: 10px;
-      background-color: #f9f9f9;
+      width: 170px;
+      background: #fafafa;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
-      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-      text-align: center;
       font-size: 0.9em;
     }
 
     .word-card h3 {
-      font-size: 1.2em;
-      margin-bottom: 5px;
-      color: #333;
+      margin: 5px 0;
     }
 
-    .word-card .translation {
-      font-size: 0.9em;
-      color: #555;
-      margin-bottom: 5px;
+    .word-card p {
+      margin: 5px 0;
     }
 
-    .word-card .definition {
-      font-size: 0.8em;
-      color: #777;
-      margin-bottom: 5px;
-    }
-
-    .word-card .pronunciation {
-      font-size: 0.8em;
-      color: #777;
-    }
-
-    html {
-      scroll-behavior: smooth;
+    @media (max-width: 600px) {
+      .word-card {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Niroq Dictionary</h1>
-    <div class="alphabetical-nav">
-      <!-- Alphabet navigation -->
-      <script>
-        document.write(
-          Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map(l => `<a href="#letter-${l}">${l}</a>`).join('')
-        );
-      </script>
+    <input type="text" id="searchBar" placeholder="Search Niroq or English word..."/>
+
+    <div class="alphabetical-nav" id="alphabetNav">
+      <!-- A-Z Links -->
     </div>
 
-    <div id="dictionaryContainer">
-      <!-- Words will be injected here -->
+    <div class="dictionary-wrapper" id="dictionaryContainer">
+      <!-- Word cards go here -->
     </div>
   </div>
 
   <script>
     const wordsData = [
-      { niroq: "bibi", english: "duck", definition: "A waterfowl that quacks and swims.", pronunciation: "bee-bee" },
-      { niroq: "boma", english: "bear", definition: "A large mammal that hibernates and has thick fur.", pronunciation: "boh-mah" },
-      { niroq: "daam", english: "man", definition: "An adult male human being.", pronunciation: "dahm" },
-      { niroq: "duun", english: "woman", definition: "An adult female human being.", pronunciation: "doon" },
-      { niroq: "hoom", english: "human", definition: "A person or member of the Homo sapiens species.", pronunciation: "hoom" },
-      { niroq: "keet", english: "bird", definition: "A small flying animal that often chirps or tweets.", pronunciation: "keet" },
-      { niroq: "kiki", english: "mouse", definition: "A small rodent that squeaks.", pronunciation: "kee-kee" },
-      { niroq: "lolo", english: "frog", definition: "A small amphibian that hops and croaks.", pronunciation: "low-low" },
-      { niroq: "luma", english: "moon", definition: "The natural satellite of Earth.", pronunciation: "loo-mah" },
-      { niroq: "maki", english: "monkey", definition: "A small to medium-sized primate that is agile and often found in trees.", pronunciation: "mah-kee" },
-      { niroq: "mii", english: "cat", definition: "A small domesticated feline known for meowing.", pronunciation: "mee" },
-      { niroq: "mooza", english: "cow", definition: "A farm animal known for producing milk and mooing.", pronunciation: "moo-zah" },
-      { niroq: "naka", english: "fish", definition: "A water-dwelling animal with fins and gills.", pronunciation: "nah-kah" },
-      { niroq: "pafu", english: "panda", definition: "A large, gentle bear with black and white markings.", pronunciation: "pah-foo" },
-      { niroq: "ruku", english: "crab", definition: "A sea creature with claws and a hard shell.", pronunciation: "roo-koo" },
-      { niroq: "rofa", english: "dog", definition: "A loyal pet that barks and loves humans.", pronunciation: "roh-fah" },
-      { niroq: "snok", english: "snake", definition: "A legless reptile known for slithering.", pronunciation: "snawk" },
-      { niroq: "sool", english: "sun", definition: "The star at the center of the solar system.", pronunciation: "sool" },
-      { niroq: "tiki", english: "tiger", definition: "A large striped wild cat.", pronunciation: "tee-kee" },
-      { niroq: "zizi", english: "bee", definition: "A flying insect known for buzzing and making honey.", pronunciation: "zee-zee" },
-      { niroq: "zuka", english: "horse", definition: "A large, fast mammal often ridden by people.", pronunciation: "zoo-kah" }
+      { niroq: "daam", english: "man", definition: "An adult male human.", pronunciation: "dahm" },
+      { niroq: "duun", english: "woman", definition: "An adult female human.", pronunciation: "doon" },
+      { niroq: "mii", english: "cat", definition: "A small domesticated feline.", pronunciation: "mee" },
+      { niroq: "rofa", english: "dog", definition: "A loyal domesticated canine.", pronunciation: "roh-fah" },
+      { niroq: "keet", english: "bird", definition: "A winged animal capable of flight.", pronunciation: "keet" },
+      { niroq: "zuka", english: "horse", definition: "A large mammal used for riding.", pronunciation: "zoo-kah" },
+      { niroq: "tavi", english: "pig", definition: "A stout domesticated mammal.", pronunciation: "tah-vee" },
+      { niroq: "koro", english: "cow", definition: "A domesticated bovine used for milk.", pronunciation: "koh-roh" },
+      { niroq: "lami", english: "sheep", definition: "A wooly animal often herded.", pronunciation: "lah-mee" },
+      { niroq: "leapra", english: "leopard", definition: "A wild spotted feline.", pronunciation: "lee-ah-prah" },
+      { niroq: "zira", english: "zebra", definition: "A striped African horse-like animal.", pronunciation: "zee-rah" },
+      { niroq: "foon", english: "frog", definition: "An amphibian known for jumping.", pronunciation: "foon" },
+      { niroq: "bakka", english: "bat", definition: "A nocturnal flying mammal.", pronunciation: "bah-kah" },
+      { niroq: "slink", english: "snake", definition: "A legless reptile.", pronunciation: "slink" },
+      { niroq: "toya", english: "tiger", definition: "A large striped feline.", pronunciation: "toy-ah" },
+      { niroq: "mako", english: "shark", definition: "A large predatory fish.", pronunciation: "mah-koh" },
+      { niroq: "drani", english: "dragon", definition: "A mythical fire-breathing creature.", pronunciation: "drah-nee" },
+      { niroq: "sora", english: "sun", definition: "The star at the center of the solar system.", pronunciation: "soh-rah" },
+      { niroq: "luna", english: "moon", definition: "Earth’s natural satellite.", pronunciation: "loo-nah" },
+      { niroq: "aqua", english: "water", definition: "A colorless, transparent liquid.", pronunciation: "ah-kwah" }
     ];
 
-    function loadDictionary() {
-      const dictionaryContainer = document.getElementById("dictionaryContainer");
-      const grouped = {};
-
-      // Group words by first letter of Niroq word
-      wordsData.sort((a, b) => a.niroq.localeCompare(b.niroq)).forEach(word => {
-        const letter = word.niroq.charAt(0).toUpperCase();
-        if (!grouped[letter]) grouped[letter] = [];
-        grouped[letter].push(word);
-      });
-
-      // Create each section
+    function loadAlphabetNav() {
+      const nav = document.getElementById("alphabetNav");
       for (let i = 65; i <= 90; i++) {
         const letter = String.fromCharCode(i);
-        const section = document.createElement("div");
-        section.classList.add("letter-section");
-        section.id = `letter-${letter}`;
-
-        const title = document.createElement("h2");
-        title.classList.add("letter-title");
-        title.textContent = letter;
-        section.appendChild(title);
-
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("dictionary-wrapper");
-
-        (grouped[letter] || []).forEach(word => {
-          const card = document.createElement("div");
-          card.classList.add("word-card");
-          card.innerHTML = `
-            <h3>${word.niroq}</h3>
-            <p class="translation"><strong>English:</strong> ${word.english}</p>
-            <p class="definition"><strong>Definition:</strong> ${word.definition}</p>
-            <p class="pronunciation"><strong>Pronunciation:</strong> ${word.pronunciation}</p>
-          `;
-          wrapper.appendChild(card);
-        });
-
-        section.appendChild(wrapper);
-        dictionaryContainer.appendChild(section);
+        const link = document.createElement("a");
+        link.href = `#${letter}`;
+        link.textContent = letter;
+        nav.appendChild(link);
       }
     }
 
-    window.onload = loadDictionary;
+    function loadDictionary(words) {
+      const container = document.getElementById("dictionaryContainer");
+      container.innerHTML = "";
+      words.forEach(word => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.innerHTML = `
+          <h3>${word.niroq}</h3>
+          <p><strong>English:</strong> ${word.english}</p>
+          <p><strong>Definition:</strong> ${word.definition}</p>
+          <p><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById("searchBar").addEventListener("input", function (e) {
+      const query = e.target.value.toLowerCase();
+      const filtered = wordsData.filter(word =>
+        word.niroq.toLowerCase().includes(query) ||
+        word.english.toLowerCase().includes(query)
+      );
+      loadDictionary(filtered);
+    });
+
+    window.onload = function () {
+      loadAlphabetNav();
+      loadDictionary(wordsData);
+    };
   </script>
 </body>
 </html>
