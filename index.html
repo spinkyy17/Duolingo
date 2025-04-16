@@ -6,85 +6,113 @@
     <title>Niroq Dictionary</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Georgia', serif;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 50px auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
         h1 {
             text-align: center;
+            font-size: 2.5em;
+            color: #333;
+        }
+
+        .dictionary-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 20px;
         }
 
         .dictionary {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            width: 100%;
+            max-height: 70vh;
             overflow-y: auto;
-            max-height: 500px;
+            border-top: 1px solid #ddd;
         }
 
         .word-card {
-            background-color: #fff;
-            padding: 15px;
+            background-color: #f9f9f9;
+            padding: 20px;
             border: 1px solid #ddd;
-            border-radius: 10px;
-            width: calc(33% - 20px);
-            box-sizing: border-box;
-            text-align: center;
-            margin-bottom: 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
         }
 
         .word-card h3 {
-            margin: 0;
-            font-size: 1.5em;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #333;
         }
 
-        .word-card p {
-            margin: 5px 0;
+        .word-card .translation {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .word-card .definition {
             font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .word-card .pronunciation {
+            font-size: 1em;
+            color: #777;
+        }
+
+        .word-card .pronunciation span {
+            font-weight: bold;
+        }
+
+        .word-card .emoji {
+            font-size: 2em;
+            margin-bottom: 15px;
         }
 
         .word-card button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
             font-size: 1em;
+            display: inline-block;
+            margin-top: 10px;
         }
 
         .word-card button:hover {
             background-color: #45a049;
         }
 
-        .word-card span {
-            font-style: italic;
+        .alphabetical-nav {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .word-card .pronunciation {
-            color: #888;
-            font-size: 0.9em;
+        .alphabetical-nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
         }
 
-        .dictionary-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-        }
-
-        .dictionary-wrapper .dictionary {
-            width: 100%;
+        .alphabetical-nav a:hover {
+            color: #4CAF50;
         }
     </style>
 </head>
@@ -92,6 +120,19 @@
 
     <div class="container">
         <h1>Niroq Dictionary</h1>
+        
+        <!-- Alphabetical navigation for browsing -->
+        <div class="alphabetical-nav">
+            <a href="#">A</a>
+            <a href="#">B</a>
+            <a href="#">C</a>
+            <a href="#">D</a>
+            <a href="#">E</a>
+            <a href="#">F</a>
+            <a href="#">G</a>
+            <!-- Add links for the rest of the alphabet -->
+        </div>
+
         <div class="dictionary-wrapper">
             <div class="dictionary" id="dictionaryContainer">
                 <!-- Words will be loaded here from the hardcoded array -->
@@ -100,33 +141,30 @@
     </div>
 
     <script>
-        // Hardcoded list of 100 Niroq words with English definitions and pronunciations
+        // Hardcoded list of 20 Niroq words with English definitions and pronunciations (add more words here)
         const wordsData = [
-            { word: 'mii', translation: 'cat', definition: 'A domesticated carnivorous mammal that is kept as a pet or for catching mice.', pronunciation: 'mee' },
-            { word: 'zub', translation: 'animal', definition: 'A general term for any non-specific animal.', pronunciation: 'zoob' },
-            { word: 'bree', translation: 'dog', definition: 'A domesticated carnivorous mammal, often known for its loyalty to humans.', pronunciation: 'bree' },
-            { word: 'tavi', translation: 'house', definition: 'A structure used for human habitation, typically consisting of a roof, walls, and furniture.', pronunciation: 'tah-vee' },
-            { word: 'nejo', translation: 'tree', definition: 'A tall perennial woody plant, typically having a single stem or trunk.', pronunciation: 'neh-joe' },
-            { word: 'shari', translation: 'sun', definition: 'The star around which the Earth orbits, providing light and warmth to the planet.', pronunciation: 'sha-ree' },
-            { word: 'veli', translation: 'moon', definition: 'A natural satellite of Earth, visible at night by reflected light from the sun.', pronunciation: 'veh-lee' },
-            { word: 'kam', translation: 'water', definition: 'A colorless, odorless, and tasteless liquid essential for all forms of life.', pronunciation: 'kahm' },
-            { word: 'keli', translation: 'fire', definition: 'A substance that is used to create heat and light by burning.', pronunciation: 'keh-lee' },
-            { word: 'zari', translation: 'earth', definition: 'The third planet from the sun, the only known place to harbor life.', pronunciation: 'zah-ree' },
-            { word: 'taro', translation: 'sky', definition: 'The region of the atmosphere that is above the Earth’s surface.', pronunciation: 'tah-roh' },
-            { word: 'yara', translation: 'star', definition: 'A luminous point in the night sky that is visible due to the emission of light.', pronunciation: 'yah-rah' },
-            { word: 'kori', translation: 'bird', definition: 'A member of a group of animals known for their ability to fly.', pronunciation: 'koh-ree' },
-            { word: 'fari', translation: 'fish', definition: 'A water-dwelling animal with fins and gills, typically living in oceans or freshwater.', pronunciation: 'fah-ree' },
-            { word: 'lori', translation: 'flower', definition: 'A flowering plant, often cultivated for its colorful blooms.', pronunciation: 'loh-ree' },
-            { word: 'kiro', translation: 'apple', definition: 'A fruit, typically red or green, that grows on apple trees and is eaten raw or cooked.', pronunciation: 'kee-roh' },
-            { word: 'voro', translation: 'tree', definition: 'A type of tall, perennial plant, usually having woody stems.', pronunciation: 'voh-roh' },
-            { word: 'frin', translation: 'river', definition: 'A large body of water, typically freshwater, that flows toward an ocean or sea.', pronunciation: 'free-n' },
-            { word: 'dino', translation: 'dinosaur', definition: 'A large, typically prehistoric, reptile that lived millions of years ago.', pronunciation: 'dee-noh' },
-            { word: 'peji', translation: 'stone', definition: 'A solid, naturally occurring substance found in the Earth’s crust.', pronunciation: 'peh-jee' },
-            { word: 'wiri', translation: 'wind', definition: 'A flow of air, especially a natural one.', pronunciation: 'wee-ree' },
-            { word: 'siro', translation: 'cloud', definition: 'A visible mass of condensed water vapor in the atmosphere.', pronunciation: 'see-roh' },
-            { word: 'hori', translation: 'rain', definition: 'Water that falls from the sky in droplets, often associated with gloomy weather.', pronunciation: 'hoh-ree' },
-            { word: 'siri', translation: 'snow', definition: 'Frozen precipitation, often forming snowflakes that fall from the sky.', pronunciation: 'see-ree' }
-            // Continue adding more words here in the same format
+            { word: 'mii', translation: 'cat', definition: 'A domesticated carnivorous mammal that is kept as a pet or for catching mice.', pronunciation: 'mee', emoji: '🐱' },
+            { word: 'keet', translation: 'bird', definition: 'A small, winged animal known for its ability to fly.', pronunciation: 'keet', emoji: '🐦' },
+            { word: 'bree', translation: 'dog', definition: 'A domesticated carnivorous mammal, often known for its loyalty to humans.', pronunciation: 'bree', emoji: '🐶' },
+            { word: 'tavi', translation: 'house', definition: 'A structure used for human habitation, typically consisting of a roof, walls, and furniture.', pronunciation: 'tah-vee', emoji: '🏠' },
+            { word: 'nejo', translation: 'tree', definition: 'A tall perennial woody plant, typically having a single stem or trunk.', pronunciation: 'neh-joe', emoji: '🌳' },
+            { word: 'shari', translation: 'sun', definition: 'The star around which the Earth orbits, providing light and warmth to the planet.', pronunciation: 'sha-ree', emoji: '🌞' },
+            { word: 'veli', translation: 'moon', definition: 'A natural satellite of Earth, visible at night by reflected light from the sun.', pronunciation: 'veh-lee', emoji: '🌕' },
+            { word: 'kam', translation: 'water', definition: 'A colorless, odorless, and tasteless liquid essential for all forms of life.', pronunciation: 'kahm', emoji: '💧' },
+            { word: 'keli', translation: 'fire', definition: 'A substance that is used to create heat and light by burning.', pronunciation: 'keh-lee', emoji: '🔥' },
+            { word: 'zari', translation: 'earth', definition: 'The third planet from the sun, the only known place to harbor life.', pronunciation: 'zah-ree', emoji: '🌍' },
+            { word: 'taro', translation: 'sky', definition: 'The region of the atmosphere that is above the Earth’s surface.', pronunciation: 'tah-roh', emoji: '🌌' },
+            { word: 'yara', translation: 'star', definition: 'A luminous point in the night sky that is visible due to the emission of light.', pronunciation: 'yah-rah', emoji: '🌟' },
+            { word: 'kori', translation: 'bird', definition: 'A member of a group of animals known for their ability to fly.', pronunciation: 'koh-ree', emoji: '🐦' },
+            { word: 'fari', translation: 'fish', definition: 'A water-dwelling animal with fins and gills, typically living in oceans or freshwater.', pronunciation: 'fah-ree', emoji: '🐟' },
+            { word: 'lori', translation: 'flower', definition: 'A flowering plant, often cultivated for its colorful blooms.', pronunciation: 'loh-ree', emoji: '🌸' },
+            { word: 'kiro', translation: 'apple', definition: 'A fruit, typically red or green, that grows on apple trees and is eaten raw or cooked.', pronunciation: 'kee-roh', emoji: '🍎' },
+            { word: 'voro', translation: 'tree', definition: 'A type of tall, perennial plant, usually having woody stems.', pronunciation: 'voh-roh', emoji: '🌲' },
+            { word: 'frin', translation: 'river', definition: 'A large body of water, typically freshwater, that flows toward an ocean or sea.', pronunciation: 'free-n', emoji: '🌊' },
+            { word: 'dino', translation: 'dinosaur', definition: 'A large, typically prehistoric, reptile that lived millions of years ago.', pronunciation: 'dee-noh', emoji: '🦖' },
+            { word: 'peji', translation: 'stone', definition: 'A solid, naturally occurring substance found in the Earth’s crust.', pronunciation: 'peh-jee', emoji: '🪨' },
+            { word: 'wiri', translation: 'wind', definition: 'A flow of air, especially a natural one.', pronunciation: 'wee-ree', emoji: '💨' },
+            { word: 'siro', translation: 'cloud', definition: 'A visible mass of condensed water vapor in the atmosphere.', pronunciation: 'see-roh', emoji: '☁️' }
         ];
 
         // Function to load the words into the dictionary
@@ -138,9 +176,10 @@
                 card.classList.add('word-card');
                 card.innerHTML = `
                     <h3>${wordData.word}</h3>
-                    <p><strong>Translation:</strong> ${wordData.translation}</p>
-                    <p><strong>Definition:</strong> ${wordData.definition}</p>
-                    <p class="pronunciation"><strong>Pronunciation:</strong> ${wordData.pronunciation}</p>
+                    <div class="emoji">${wordData.emoji}</div>
+                    <p class="translation"><strong>Translation:</strong> ${wordData.translation}</p>
+                    <p class="definition"><strong>Definition:</strong> ${wordData.definition}</p>
+                    <p class="pronunciation"><strong>Pronunciation:</strong> <span>${wordData.pronunciation}</span></p>
                 `;
                 dictionaryContainer.appendChild(card);
             });
