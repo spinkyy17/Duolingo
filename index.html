@@ -25,6 +25,30 @@
       padding: 20px;
     }
 
+    .path-map {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .path-map .lesson {
+      margin: 0 10px;
+      padding: 10px;
+      background-color: #f7f7f7;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .path-map .completed {
+      background-color: #58cc02;
+      color: white;
+    }
+
+    .path-map .locked {
+      background-color: #d0d0d0;
+      color: #888;
+    }
+
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -120,6 +144,8 @@
 <body>
 
 <div class="app">
+  <div class="path-map" id="pathMap"></div>
+  
   <div class="top-bar">
     <div class="badge">❤️ <span id="lives">3</span></div>
     <div class="badge">🔥 <span id="streak">0</span></div>
@@ -168,6 +194,7 @@
   const emojiWordEl = document.getElementById("emojiWord");
   const optionsEl = document.getElementById("options");
   const nextBtn = document.getElementById("nextLessonBtn");
+  const pathMap = document.getElementById("pathMap");
 
   const speak = (text) => {
     const utter = new SpeechSynthesisUtterance(text);
@@ -192,10 +219,10 @@
     { emoji: "❄️", niroq: "snuv", english: "snow" },
   ];
 
-  const generateQuestionSet = () => {
-    return lessonData.map(word => ({
+  const generateQuestionSet = (words) => {
+    return words.map(word => ({
       emoji: word.emoji,
-      question: `Press the ${word.english}`,
+      question: `My ${word.english} is ${word.niroq}`,
       correctAnswer: word.niroq,
       options: shuffle([
         word.niroq,
@@ -203,8 +230,6 @@
       ])
     }));
   };
-
-  let fullLesson = generateQuestionSet();
 
   function shuffle(array) {
     let currentIndex = array.length, randomIndex;
@@ -217,41 +242,27 @@
     return array;
   }
 
-  const updateUI = () => {
-    xpEl.innerText = userXP;
-    streakEl.innerText = userStreak;
-    livesEl.innerText = userLives;
-    xpFill.style.width = `${(userXP % 100)}%`;
-  };
-
-  const saveUserData = () => {
-    db.collection("users").doc(userId).set({
-      xp: userXP,
-      streak: userStreak,
-      lives: userLives
-    }, { merge: true });
-    updateUI();
-  };
-
   const loadLesson = () => {
     answered = false;
     nextBtn.disabled = true;
 
-    const lesson = fullLesson[currentLessonIndex];
-    questionEl.innerText = lesson.question;
-    emojiWordEl.innerText = lesson.emoji;
-    speak(lesson.question);
+    const lesson = generateQuestionSet(lessonData.slice(currentLessonIndex * 4, (currentLessonIndex + 1) * 4));
+
+    const lessonQuestion = lesson[0];
+    questionEl.innerText = lessonQuestion.question;
+    emojiWordEl.innerText = lessonQuestion.emoji;
+    speak(lessonQuestion.question);
 
     optionsEl.innerHTML = "";
-    lesson.options.forEach(option => {
+    lesson.forEach((lessonItem, index) => {
       const btn = document.createElement("div");
       btn.className = "option-btn";
-      btn.innerText = option;
+      btn.innerText = lessonItem.options[0];
 
       btn.onclick = () => {
         if (answered) return;
         answered = true;
-        if (option === lesson.correctAnswer) {
+        if (btn.innerText === lessonItem.correctAnswer) {
           btn.classList.add("correct");
           userXP += 10;
           userStreak += 1;
@@ -263,7 +274,7 @@
 
         document.querySelectorAll(".option-btn").forEach(b => {
           b.onclick = null;
-          if (b.innerText === lesson.correctAnswer) b.classList.add("correct");
+          if (b.innerText === lessonItem.correctAnswer) b.classList.add("correct");
         });
 
         nextBtn.disabled = false;
@@ -274,44 +285,43 @@
     });
   };
 
+  const updateUI = () => {
+    xpEl.innerText = userXP;
+    streakEl.innerText = userStreak;
+    livesEl.innerText = userLives;
+    xpFill.style.width = `${(userXP % 100)}%`;
+  };
+
+  const saveUserData = () => {
+    localStorage.setItem("xp", userXP);
+    localStorage.setItem("streak", userStreak);
+    localStorage.setItem("lives", userLives);
+    localStorage.setItem("currentLesson", currentLessonIndex);
+  };
+
+  const loadUserData = () => {
+    userXP = parseInt(localStorage.getItem("xp")) || 0;
+    userStreak = parseInt(localStorage.getItem("streak")) || 0;
+    userLives = parseInt(localStorage.getItem("lives")) || 3;
+    currentLessonIndex = parseInt(localStorage.getItem("currentLesson")) || 0;
+
+    updateUI();
+  };
+
+  const initApp = () => {
+    loadUserData();
+    loadLesson();
+  };
+
   nextBtn.onclick = () => {
-    currentLessonIndex++;
-
-    if (userLives <= 0) {
-      questionEl.innerText = "You ran out of hearts!";
-      emojiWordEl.innerText = "❤️";
-      optionsEl.innerHTML = "<div>Try again later or reset!</div>";
-      nextBtn.disabled = true;
-      return;
-    }
-
-    if (currentLessonIndex < fullLesson.length) {
-      nextBtn.innerText = "Next";
+    if (answered) {
+      currentLessonIndex += 1;
+      saveUserData();
       loadLesson();
-    } else {
-      questionEl.innerText = "Lesson Complete!";
-      emojiWordEl.innerText = "✅";
-      optionsEl.innerHTML = `<div class="lesson-complete">You've learned 14 new words!</div>`;
-      nextBtn.innerText = "Restart";
-      currentLessonIndex = -1;
-      fullLesson = generateQuestionSet();
     }
   };
 
-  auth.signInAnonymously().then(() => {
-    userId = auth.currentUser.uid;
-    db.collection("users").doc(userId).get().then(doc => {
-      if (doc.exists) {
-        const data = doc.data();
-        userXP = data.xp || 0;
-        userStreak = data.streak || 0;
-        userLives = data.lives ?? 3;
-      } else {
-        db.collection("users").doc(userId).set({ xp: 0, streak: 0, lives: 3 });
-      }
-      updateUI();
-    });
-  });
+  initApp();
 </script>
 
 </body>
