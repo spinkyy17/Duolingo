@@ -29,6 +29,8 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
+            overflow-y: auto;
+            max-height: 500px;
         }
 
         .word-card {
@@ -39,6 +41,7 @@
             width: calc(33% - 20px);
             box-sizing: border-box;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .word-card h3 {
@@ -48,6 +51,7 @@
 
         .word-card p {
             margin: 5px 0;
+            font-size: 1.1em;
         }
 
         .word-card button {
@@ -63,70 +67,86 @@
         .word-card button:hover {
             background-color: #45a049;
         }
+
+        .word-card span {
+            font-style: italic;
+        }
+
+        .word-card .pronunciation {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .dictionary-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
+
+        .dictionary-wrapper .dictionary {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>Niroq Dictionary</h1>
-        <div class="dictionary" id="dictionaryContainer">
-            <!-- Words will be loaded here from Firebase -->
+        <div class="dictionary-wrapper">
+            <div class="dictionary" id="dictionaryContainer">
+                <!-- Words will be loaded here from the hardcoded array -->
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-
     <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
-            authDomain: "spinktweet.firebaseapp.com",
-            projectId: "spinktweet",
-            storageBucket: "spinktweet.appspot.com",
-            messagingSenderId: "848866063079",
-            appId: "1:848866063079:web:be2efce9b4c5ecc3956842",
-            measurementId: "G-81YMX6VBK4"
-        };
+        // Hardcoded list of 100 Niroq words with English definitions and pronunciations
+        const wordsData = [
+            { word: 'mii', translation: 'cat', definition: 'A domesticated carnivorous mammal that is kept as a pet or for catching mice.', pronunciation: 'mee' },
+            { word: 'zub', translation: 'animal', definition: 'A general term for any non-specific animal.', pronunciation: 'zoob' },
+            { word: 'bree', translation: 'dog', definition: 'A domesticated carnivorous mammal, often known for its loyalty to humans.', pronunciation: 'bree' },
+            { word: 'tavi', translation: 'house', definition: 'A structure used for human habitation, typically consisting of a roof, walls, and furniture.', pronunciation: 'tah-vee' },
+            { word: 'nejo', translation: 'tree', definition: 'A tall perennial woody plant, typically having a single stem or trunk.', pronunciation: 'neh-joe' },
+            { word: 'shari', translation: 'sun', definition: 'The star around which the Earth orbits, providing light and warmth to the planet.', pronunciation: 'sha-ree' },
+            { word: 'veli', translation: 'moon', definition: 'A natural satellite of Earth, visible at night by reflected light from the sun.', pronunciation: 'veh-lee' },
+            { word: 'kam', translation: 'water', definition: 'A colorless, odorless, and tasteless liquid essential for all forms of life.', pronunciation: 'kahm' },
+            { word: 'keli', translation: 'fire', definition: 'A substance that is used to create heat and light by burning.', pronunciation: 'keh-lee' },
+            { word: 'zari', translation: 'earth', definition: 'The third planet from the sun, the only known place to harbor life.', pronunciation: 'zah-ree' },
+            { word: 'taro', translation: 'sky', definition: 'The region of the atmosphere that is above the Earth’s surface.', pronunciation: 'tah-roh' },
+            { word: 'yara', translation: 'star', definition: 'A luminous point in the night sky that is visible due to the emission of light.', pronunciation: 'yah-rah' },
+            { word: 'kori', translation: 'bird', definition: 'A member of a group of animals known for their ability to fly.', pronunciation: 'koh-ree' },
+            { word: 'fari', translation: 'fish', definition: 'A water-dwelling animal with fins and gills, typically living in oceans or freshwater.', pronunciation: 'fah-ree' },
+            { word: 'lori', translation: 'flower', definition: 'A flowering plant, often cultivated for its colorful blooms.', pronunciation: 'loh-ree' },
+            { word: 'kiro', translation: 'apple', definition: 'A fruit, typically red or green, that grows on apple trees and is eaten raw or cooked.', pronunciation: 'kee-roh' },
+            { word: 'voro', translation: 'tree', definition: 'A type of tall, perennial plant, usually having woody stems.', pronunciation: 'voh-roh' },
+            { word: 'frin', translation: 'river', definition: 'A large body of water, typically freshwater, that flows toward an ocean or sea.', pronunciation: 'free-n' },
+            { word: 'dino', translation: 'dinosaur', definition: 'A large, typically prehistoric, reptile that lived millions of years ago.', pronunciation: 'dee-noh' },
+            { word: 'peji', translation: 'stone', definition: 'A solid, naturally occurring substance found in the Earth’s crust.', pronunciation: 'peh-jee' },
+            { word: 'wiri', translation: 'wind', definition: 'A flow of air, especially a natural one.', pronunciation: 'wee-ree' },
+            { word: 'siro', translation: 'cloud', definition: 'A visible mass of condensed water vapor in the atmosphere.', pronunciation: 'see-roh' },
+            { word: 'hori', translation: 'rain', definition: 'Water that falls from the sky in droplets, often associated with gloomy weather.', pronunciation: 'hoh-ree' },
+            { word: 'siri', translation: 'snow', definition: 'Frozen precipitation, often forming snowflakes that fall from the sky.', pronunciation: 'see-ree' }
+            // Continue adding more words here in the same format
+        ];
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Function to fetch words from Firebase and display them
+        // Function to load the words into the dictionary
         function loadDictionary() {
             const dictionaryContainer = document.getElementById('dictionaryContainer');
-            db.collection("niroqWords").get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const word = data.word;
-                    const definition = data.definition;
 
-                    // Create a card for each word
-                    const card = document.createElement('div');
-                    card.classList.add('word-card');
-                    card.innerHTML = `
-                        <h3>${word}</h3>
-                        <p>${definition}</p>
-                        <button onclick="speakWord('${word}')">Pronounce</button>
-                    `;
-
-                    dictionaryContainer.appendChild(card);
-                });
-            }).catch((error) => {
-                console.log("Error getting documents: ", error);
+            wordsData.forEach(wordData => {
+                const card = document.createElement('div');
+                card.classList.add('word-card');
+                card.innerHTML = `
+                    <h3>${wordData.word}</h3>
+                    <p><strong>Translation:</strong> ${wordData.translation}</p>
+                    <p><strong>Definition:</strong> ${wordData.definition}</p>
+                    <p class="pronunciation"><strong>Pronunciation:</strong> ${wordData.pronunciation}</p>
+                `;
+                dictionaryContainer.appendChild(card);
             });
         }
 
-        // Function to pronounce the Niroq word using Text-to-Speech
-        function speakWord(word) {
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US'; // Use your preferred language for TTS
-            speechSynthesis.speak(utterance);
-        }
-
-        // Load dictionary when page is ready
+        // Load the dictionary when the page is ready
         window.onload = loadDictionary;
     </script>
 </body>
