@@ -27,6 +27,15 @@
       color: #333;
     }
 
+    #searchBar {
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
     .alphabetical-nav {
       font-size: 1.1em;
       margin-bottom: 20px;
@@ -108,6 +117,10 @@
 <body>
   <div class="container">
     <h1>Niroq Dictionary</h1>
+    
+    <!-- Search bar -->
+    <input type="text" id="searchBar" placeholder="Search Niroq or English..." />
+
     <div class="alphabetical-nav">
       <!-- Alphabet navigation -->
       <script>
@@ -189,6 +202,56 @@
         dictionaryContainer.appendChild(section);
       }
     }
+
+    // Search functionality
+    document.getElementById("searchBar").addEventListener("input", function (e) {
+      const query = e.target.value.toLowerCase();
+      const filteredWords = wordsData.filter(word =>
+        word.niroq.toLowerCase().includes(query) || word.english.toLowerCase().includes(query)
+      );
+      
+      const dictionaryContainer = document.getElementById("dictionaryContainer");
+      dictionaryContainer.innerHTML = ""; // Clear current dictionary
+      const grouped = {};
+
+      // Group filtered words by first letter of Niroq word
+      filteredWords.forEach(word => {
+        const letter = word.niroq.charAt(0).toUpperCase();
+        if (!grouped[letter]) grouped[letter] = [];
+        grouped[letter].push(word);
+      });
+
+      // Render filtered dictionary
+      for (let i = 65; i <= 90; i++) {
+        const letter = String.fromCharCode(i);
+        const section = document.createElement("div");
+        section.classList.add("letter-section");
+        section.id = `letter-${letter}`;
+
+        const title = document.createElement("h2");
+        title.classList.add("letter-title");
+        title.textContent = letter;
+        section.appendChild(title);
+
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("dictionary-wrapper");
+
+        (grouped[letter] || []).forEach(word => {
+          const card = document.createElement("div");
+          card.classList.add("word-card");
+          card.innerHTML = `
+            <h3>${word.niroq}</h3>
+            <p class="translation"><strong>English:</strong> ${word.english}</p>
+            <p class="definition"><strong>Definition:</strong> ${word.definition}</p>
+            <p class="pronunciation"><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+          `;
+          wrapper.appendChild(card);
+        });
+
+        section.appendChild(wrapper);
+        dictionaryContainer.appendChild(section);
+      }
+    });
 
     window.onload = loadDictionary;
   </script>
