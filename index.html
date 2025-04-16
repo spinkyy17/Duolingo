@@ -1,327 +1,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Niroq Duolingo App</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niroq Dictionary</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Baloo 2', sans-serif;
-      background: #f4f4f4;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 0;
     }
 
-    .app {
-      max-width: 420px;
-      margin: 30px auto;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    .dictionary-app {
+      width: 90%;
+      max-width: 1000px;
+      margin: 20px auto;
       padding: 20px;
-    }
-
-    .path-map {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .path-map .lesson {
-      margin: 0 10px;
-      padding: 10px;
-      background-color: #f7f7f7;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-
-    .path-map .completed {
-      background-color: #58cc02;
-      color: white;
-    }
-
-    .path-map .locked {
-      background-color: #d0d0d0;
-      color: #888;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
-
-    .badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 1rem;
-      background: #f0f0f0;
-      padding: 6px 12px;
-      border-radius: 12px;
-    }
-
-    .xp-bar {
-      height: 10px;
-      background: #e0e0e0;
+      background-color: white;
       border-radius: 10px;
-      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      text-align: center;
+      font-size: 24px;
       margin-bottom: 20px;
     }
 
-    .xp-fill {
-      height: 100%;
-      background: #58cc02;
-      width: 0%;
-      transition: width 0.3s;
+    .word-list {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
     }
 
-    .question {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-
-    .emoji-word {
-      font-size: 2rem;
-      margin-bottom: 5px;
-    }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .option-btn {
-      background: #f7f7f7;
-      padding: 12px;
-      border-radius: 12px;
-      text-align: center;
+    .word-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
       cursor: pointer;
-      font-size: 1rem;
-      border: 2px solid transparent;
-      transition: 0.2s;
     }
 
-    .option-btn.correct {
-      background-color: #d4f8c5;
-      border-color: #58cc02;
+    .word-item:hover {
+      background-color: #f0f0f0;
     }
 
-    .option-btn.incorrect {
-      background-color: #f8d4d4;
-      border-color: #ff4b4b;
+    .word-detail {
+      padding: 20px;
+      background-color: #fafafa;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
-    .next-btn {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background: #58cc02;
-      color: white;
+    .word-detail h2 {
+      margin: 0 0 10px;
+    }
+
+    .pronunciation-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #58cc02;
       border: none;
-      border-radius: 12px;
-      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .pronunciation-btn:hover {
+      background-color: #4b9e02;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
 
-    .next-btn:disabled {
-      background: #bde5a7;
-      cursor: not-allowed;
-    }
-
-    .lesson-complete {
-      text-align: center;
-      font-size: 1.1rem;
-      margin-top: 20px;
+    .back-btn:hover {
+      background-color: #bbb;
     }
   </style>
 </head>
 <body>
 
-<div class="app">
-  <div class="path-map" id="pathMap"></div>
-  
-  <div class="top-bar">
-    <div class="badge">❤️ <span id="lives">3</span></div>
-    <div class="badge">🔥 <span id="streak">0</span></div>
-    <div class="badge">⭐ <span id="xp">0</span></div>
+<div class="dictionary-app">
+  <div class="header">
+    Niroq Dictionary
   </div>
 
-  <div class="xp-bar">
-    <div class="xp-fill" id="xpFill"></div>
+  <div class="word-list" id="wordList">
+    <!-- Word List will be populated here -->
   </div>
 
-  <div id="lessonArea">
-    <div class="emoji-word" id="emojiWord"></div>
-    <div class="question" id="question">Click start to begin.</div>
-    <div class="options" id="options"></div>
-    <button class="next-btn" id="nextLessonBtn">Start Lesson</button>
+  <div id="wordDetail" class="word-detail" style="display: none;">
+    <h2 id="wordName"></h2>
+    <p id="wordDefinition"></p>
+    <button id="playPronunciation" class="pronunciation-btn">Play Pronunciation</button>
+    <button class="back-btn" id="backBtn">Back to List</button>
   </div>
 </div>
 
 <script>
+  // Initialize Firebase
   const firebaseConfig = {
-    apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
-    authDomain: "spinktweet.firebaseapp.com",
-    projectId: "spinktweet",
-    storageBucket: "spinktweet.firebasestorage.app",
-    messagingSenderId: "848866063079",
-    appId: "1:848866063079:web:be2efce9b4c5ecc3956842",
-    measurementId: "G-81YMX6VBK4"
+    apiKey: "your-api-key",
+    authDomain: "your-auth-domain",
+    projectId: "your-project-id",
+    storageBucket: "your-storage-bucket",
+    messagingSenderId: "your-sender-id",
+    appId: "your-app-id",
+    measurementId: "your-measurement-id"
   };
 
+  // Initialize Firebase App
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
-  const auth = firebase.auth();
 
-  let userId = null;
-  let userXP = 0;
-  let userStreak = 0;
-  let userLives = 3;
-  let currentLessonIndex = -1;
-  let answered = false;
+  const wordListEl = document.getElementById("wordList");
+  const wordDetailEl = document.getElementById("wordDetail");
+  const wordNameEl = document.getElementById("wordName");
+  const wordDefinitionEl = document.getElementById("wordDefinition");
+  const playPronunciationBtn = document.getElementById("playPronunciation");
+  const backBtn = document.getElementById("backBtn");
 
-  const xpEl = document.getElementById("xp");
-  const streakEl = document.getElementById("streak");
-  const livesEl = document.getElementById("lives");
-  const xpFill = document.getElementById("xpFill");
-  const questionEl = document.getElementById("question");
-  const emojiWordEl = document.getElementById("emojiWord");
-  const optionsEl = document.getElementById("options");
-  const nextBtn = document.getElementById("nextLessonBtn");
-  const pathMap = document.getElementById("pathMap");
-
-  const speak = (text) => {
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "en-US";
-    window.speechSynthesis.speak(utter);
+  // Function to play pronunciation of the Niroq word
+  const playPronunciation = (word) => {
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = 'en-US'; // You may want to change this to 'niroq' if you have specific TTS for Niroq
+    speechSynthesis.speak(utterance);
   };
 
-  const lessonData = [
-    { emoji: "👨", niroq: "daam", english: "man" },
-    { emoji: "👩", niroq: "duun", english: "woman" },
-    { emoji: "🐱", niroq: "mii", english: "cat" },
-    { emoji: "🐶", niroq: "rofa", english: "dog" },
-    { emoji: "🐦", niroq: "keet", english: "bird" },
-    { emoji: "🐴", niroq: "zuka", english: "horse" },
-    { emoji: "🌳", niroq: "treb", english: "tree" },
-    { emoji: "☀️", niroq: "sol", english: "sun" },
-    { emoji: "🌕", niroq: "luna", english: "moon" },
-    { emoji: "🔥", niroq: "fiir", english: "fire" },
-    { emoji: "💧", niroq: "aqua", english: "water" },
-    { emoji: "🌍", niroq: "zor", english: "earth" },
-    { emoji: "⭐", niroq: "stell", english: "star" },
-    { emoji: "❄️", niroq: "snuv", english: "snow" },
-  ];
+  // Load words from Firebase and populate the word list
+  const loadWords = async () => {
+    const wordsSnapshot = await db.collection("niroqWords").orderBy("word").get();
+    wordsSnapshot.forEach(doc => {
+      const wordData = doc.data();
+      const wordItem = document.createElement("div");
+      wordItem.classList.add("word-item");
+      wordItem.textContent = wordData.word;
 
-  const generateQuestionSet = (words) => {
-    return words.map(word => ({
-      emoji: word.emoji,
-      question: `My ${word.english} is ${word.niroq}`,
-      correctAnswer: word.niroq,
-      options: shuffle([
-        word.niroq,
-        ...lessonData.filter(w => w.niroq !== word.niroq).slice(0, 2).map(w => w.niroq)
-      ])
-    }));
-  };
-
-  function shuffle(array) {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex !== 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex], array[currentIndex]];
-    }
-    return array;
-  }
-
-  const loadLesson = () => {
-    answered = false;
-    nextBtn.disabled = true;
-
-    const lesson = generateQuestionSet(lessonData.slice(currentLessonIndex * 4, (currentLessonIndex + 1) * 4));
-
-    const lessonQuestion = lesson[0];
-    questionEl.innerText = lessonQuestion.question;
-    emojiWordEl.innerText = lessonQuestion.emoji;
-    speak(lessonQuestion.question);
-
-    optionsEl.innerHTML = "";
-    lesson.forEach((lessonItem, index) => {
-      const btn = document.createElement("div");
-      btn.className = "option-btn";
-      btn.innerText = lessonItem.options[0];
-
-      btn.onclick = () => {
-        if (answered) return;
-        answered = true;
-        if (btn.innerText === lessonItem.correctAnswer) {
-          btn.classList.add("correct");
-          userXP += 10;
-          userStreak += 1;
-        } else {
-          btn.classList.add("incorrect");
-          userStreak = 0;
-          userLives -= 1;
-        }
-
-        document.querySelectorAll(".option-btn").forEach(b => {
-          b.onclick = null;
-          if (b.innerText === lessonItem.correctAnswer) b.classList.add("correct");
-        });
-
-        nextBtn.disabled = false;
-        saveUserData();
+      // When a word is clicked, display its details
+      wordItem.onclick = () => {
+        wordNameEl.textContent = wordData.word;
+        wordDefinitionEl.textContent = wordData.definition;
+        wordDetailEl.style.display = "block";
+        wordListEl.style.display = "none";
+        
+        playPronunciationBtn.onclick = () => playPronunciation(wordData.word);
       };
 
-      optionsEl.appendChild(btn);
+      wordListEl.appendChild(wordItem);
     });
   };
 
-  const updateUI = () => {
-    xpEl.innerText = userXP;
-    streakEl.innerText = userStreak;
-    livesEl.innerText = userLives;
-    xpFill.style.width = `${(userXP % 100)}%`;
+  // Back to word list
+  backBtn.onclick = () => {
+    wordDetailEl.style.display = "none";
+    wordListEl.style.display = "block";
   };
 
-  const saveUserData = () => {
-    localStorage.setItem("xp", userXP);
-    localStorage.setItem("streak", userStreak);
-    localStorage.setItem("lives", userLives);
-    localStorage.setItem("currentLesson", currentLessonIndex);
-  };
-
-  const loadUserData = () => {
-    userXP = parseInt(localStorage.getItem("xp")) || 0;
-    userStreak = parseInt(localStorage.getItem("streak")) || 0;
-    userLives = parseInt(localStorage.getItem("lives")) || 3;
-    currentLessonIndex = parseInt(localStorage.getItem("currentLesson")) || 0;
-
-    updateUI();
-  };
-
-  const initApp = () => {
-    loadUserData();
-    loadLesson();
-  };
-
-  nextBtn.onclick = () => {
-    if (answered) {
-      currentLessonIndex += 1;
-      saveUserData();
-      loadLesson();
-    }
-  };
-
-  initApp();
+  // Load words when the page loads
+  window.onload = loadWords;
 </script>
 
 </body>
