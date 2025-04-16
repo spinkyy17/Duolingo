@@ -1,192 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Niroq Dictionary</title>
-    <style>
-        body {
-            font-family: 'Georgia', serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Niroq Dictionary</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: #ffffff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
 
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            color: #333;
-        }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      color: #333;
+    }
 
-        .dictionary-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
+    .alphabetical-nav {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      text-align: center;
+      flex-wrap: wrap;
+    }
 
-        .dictionary {
-            width: 100%;
-            max-height: 70vh;
-            overflow-y: auto;
-            border-top: 1px solid #ddd;
-        }
+    .alphabetical-nav a {
+      margin: 5px 8px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+      display: inline-block;
+    }
 
-        .word-card {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
-        }
+    .alphabetical-nav a:hover {
+      color: #4CAF50;
+    }
 
-        .word-card h3 {
-            font-size: 1.8em;
-            margin-bottom: 10px;
-            color: #333;
-        }
+    .letter-section {
+      margin-top: 40px;
+    }
 
-        .word-card .translation {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            color: #555;
-        }
+    .letter-title {
+      font-size: 1.8em;
+      color: #333;
+      margin-top: 40px;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+    }
 
-        .word-card .definition {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            color: #333;
-        }
+    .dictionary-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      margin-top: 10px;
+    }
 
-        .word-card .pronunciation {
-            font-size: 1em;
-            color: #777;
-        }
+    .word-card {
+      width: 150px;
+      margin: 10px;
+      background-color: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 0.9em;
+    }
 
-        .word-card .pronunciation span {
-            font-weight: bold;
-        }
+    .word-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 5px;
+      color: #333;
+    }
 
-        .word-card .emoji {
-            font-size: 2em;
-            margin-bottom: 15px;
-        }
+    .word-card .translation {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 5px;
+    }
 
-        .word-card button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 1em;
-            display: inline-block;
-            margin-top: 10px;
-        }
+    .word-card .definition {
+      font-size: 0.8em;
+      color: #777;
+      margin-bottom: 5px;
+    }
 
-        .word-card button:hover {
-            background-color: #45a049;
-        }
+    .word-card .pronunciation {
+      font-size: 0.8em;
+      color: #777;
+    }
 
-        .alphabetical-nav {
-            font-size: 1.1em;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .alphabetical-nav a {
-            margin: 0 10px;
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-        }
-
-        .alphabetical-nav a:hover {
-            color: #4CAF50;
-        }
-    </style>
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Niroq Dictionary</h1>
-        
-        <!-- Alphabetical navigation for browsing -->
-        <div class="alphabetical-nav">
-            <a href="#">A</a>
-            <a href="#">B</a>
-            <a href="#">C</a>
-            <a href="#">D</a>
-            <a href="#">E</a>
-            <a href="#">F</a>
-            <a href="#">G</a>
-            <!-- Add links for the rest of the alphabet -->
-        </div>
-
-        <div class="dictionary-wrapper">
-            <div class="dictionary" id="dictionaryContainer">
-                <!-- Words will be loaded here from the hardcoded array -->
-            </div>
-        </div>
+  <div class="container">
+    <h1>Niroq Dictionary</h1>
+    <div class="alphabetical-nav">
+      <!-- Alphabet navigation -->
+      <script>
+        document.write(
+          Array.from("ABCDEFGHIJKLMNOPQRSTUVWXYZ").map(l => `<a href="#letter-${l}">${l}</a>`).join('')
+        );
+      </script>
     </div>
 
-    <script>
-        // Hardcoded list of 20 Niroq words with English definitions and pronunciations (add more words here)
-        const wordsData = [
-            { word: 'mii', translation: 'cat', definition: 'A domesticated carnivorous mammal that is kept as a pet or for catching mice.', pronunciation: 'mee', emoji: '🐱' },
-            { word: 'keet', translation: 'bird', definition: 'A small, winged animal known for its ability to fly.', pronunciation: 'keet', emoji: '🐦' },
-            { word: 'bree', translation: 'dog', definition: 'A domesticated carnivorous mammal, often known for its loyalty to humans.', pronunciation: 'bree', emoji: '🐶' },
-            { word: 'tavi', translation: 'house', definition: 'A structure used for human habitation, typically consisting of a roof, walls, and furniture.', pronunciation: 'tah-vee', emoji: '🏠' },
-            { word: 'nejo', translation: 'tree', definition: 'A tall perennial woody plant, typically having a single stem or trunk.', pronunciation: 'neh-joe', emoji: '🌳' },
-            { word: 'shari', translation: 'sun', definition: 'The star around which the Earth orbits, providing light and warmth to the planet.', pronunciation: 'sha-ree', emoji: '🌞' },
-            { word: 'veli', translation: 'moon', definition: 'A natural satellite of Earth, visible at night by reflected light from the sun.', pronunciation: 'veh-lee', emoji: '🌕' },
-            { word: 'kam', translation: 'water', definition: 'A colorless, odorless, and tasteless liquid essential for all forms of life.', pronunciation: 'kahm', emoji: '💧' },
-            { word: 'keli', translation: 'fire', definition: 'A substance that is used to create heat and light by burning.', pronunciation: 'keh-lee', emoji: '🔥' },
-            { word: 'zari', translation: 'earth', definition: 'The third planet from the sun, the only known place to harbor life.', pronunciation: 'zah-ree', emoji: '🌍' },
-            { word: 'taro', translation: 'sky', definition: 'The region of the atmosphere that is above the Earth’s surface.', pronunciation: 'tah-roh', emoji: '🌌' },
-            { word: 'yara', translation: 'star', definition: 'A luminous point in the night sky that is visible due to the emission of light.', pronunciation: 'yah-rah', emoji: '🌟' },
-            { word: 'kori', translation: 'bird', definition: 'A member of a group of animals known for their ability to fly.', pronunciation: 'koh-ree', emoji: '🐦' },
-            { word: 'fari', translation: 'fish', definition: 'A water-dwelling animal with fins and gills, typically living in oceans or freshwater.', pronunciation: 'fah-ree', emoji: '🐟' },
-            { word: 'lori', translation: 'flower', definition: 'A flowering plant, often cultivated for its colorful blooms.', pronunciation: 'loh-ree', emoji: '🌸' },
-            { word: 'kiro', translation: 'apple', definition: 'A fruit, typically red or green, that grows on apple trees and is eaten raw or cooked.', pronunciation: 'kee-roh', emoji: '🍎' },
-            { word: 'voro', translation: 'tree', definition: 'A type of tall, perennial plant, usually having woody stems.', pronunciation: 'voh-roh', emoji: '🌲' },
-            { word: 'frin', translation: 'river', definition: 'A large body of water, typically freshwater, that flows toward an ocean or sea.', pronunciation: 'free-n', emoji: '🌊' },
-            { word: 'dino', translation: 'dinosaur', definition: 'A large, typically prehistoric, reptile that lived millions of years ago.', pronunciation: 'dee-noh', emoji: '🦖' },
-            { word: 'peji', translation: 'stone', definition: 'A solid, naturally occurring substance found in the Earth’s crust.', pronunciation: 'peh-jee', emoji: '🪨' },
-            { word: 'wiri', translation: 'wind', definition: 'A flow of air, especially a natural one.', pronunciation: 'wee-ree', emoji: '💨' },
-            { word: 'siro', translation: 'cloud', definition: 'A visible mass of condensed water vapor in the atmosphere.', pronunciation: 'see-roh', emoji: '☁️' }
-        ];
+    <div id="dictionaryContainer">
+      <!-- Words will be injected here -->
+    </div>
+  </div>
 
-        // Function to load the words into the dictionary
-        function loadDictionary() {
-            const dictionaryContainer = document.getElementById('dictionaryContainer');
+  <script>
+    const wordsData = [
+      { niroq: "bibi", english: "duck", definition: "A waterfowl that quacks and swims.", pronunciation: "bee-bee" },
+      { niroq: "boma", english: "bear", definition: "A large mammal that hibernates and has thick fur.", pronunciation: "boh-mah" },
+      { niroq: "daam", english: "man", definition: "An adult male human being.", pronunciation: "dahm" },
+      { niroq: "duun", english: "woman", definition: "An adult female human being.", pronunciation: "doon" },
+      { niroq: "hoom", english: "human", definition: "A person or member of the Homo sapiens species.", pronunciation: "hoom" },
+      { niroq: "keet", english: "bird", definition: "A small flying animal that often chirps or tweets.", pronunciation: "keet" },
+      { niroq: "kiki", english: "mouse", definition: "A small rodent that squeaks.", pronunciation: "kee-kee" },
+      { niroq: "lolo", english: "frog", definition: "A small amphibian that hops and croaks.", pronunciation: "low-low" },
+      { niroq: "luma", english: "moon", definition: "The natural satellite of Earth.", pronunciation: "loo-mah" },
+      { niroq: "maki", english: "monkey", definition: "A small to medium-sized primate that is agile and often found in trees.", pronunciation: "mah-kee" },
+      { niroq: "mii", english: "cat", definition: "A small domesticated feline known for meowing.", pronunciation: "mee" },
+      { niroq: "mooza", english: "cow", definition: "A farm animal known for producing milk and mooing.", pronunciation: "moo-zah" },
+      { niroq: "naka", english: "fish", definition: "A water-dwelling animal with fins and gills.", pronunciation: "nah-kah" },
+      { niroq: "pafu", english: "panda", definition: "A large, gentle bear with black and white markings.", pronunciation: "pah-foo" },
+      { niroq: "ruku", english: "crab", definition: "A sea creature with claws and a hard shell.", pronunciation: "roo-koo" },
+      { niroq: "rofa", english: "dog", definition: "A loyal pet that barks and loves humans.", pronunciation: "roh-fah" },
+      { niroq: "snok", english: "snake", definition: "A legless reptile known for slithering.", pronunciation: "snawk" },
+      { niroq: "sool", english: "sun", definition: "The star at the center of the solar system.", pronunciation: "sool" },
+      { niroq: "tiki", english: "tiger", definition: "A large striped wild cat.", pronunciation: "tee-kee" },
+      { niroq: "zizi", english: "bee", definition: "A flying insect known for buzzing and making honey.", pronunciation: "zee-zee" },
+      { niroq: "zuka", english: "horse", definition: "A large, fast mammal often ridden by people.", pronunciation: "zoo-kah" }
+    ];
 
-            wordsData.forEach(wordData => {
-                const card = document.createElement('div');
-                card.classList.add('word-card');
-                card.innerHTML = `
-                    <h3>${wordData.word}</h3>
-                    <div class="emoji">${wordData.emoji}</div>
-                    <p class="translation"><strong>Translation:</strong> ${wordData.translation}</p>
-                    <p class="definition"><strong>Definition:</strong> ${wordData.definition}</p>
-                    <p class="pronunciation"><strong>Pronunciation:</strong> <span>${wordData.pronunciation}</span></p>
-                `;
-                dictionaryContainer.appendChild(card);
-            });
-        }
+    function loadDictionary() {
+      const dictionaryContainer = document.getElementById("dictionaryContainer");
+      const grouped = {};
 
-        // Load the dictionary when the page is ready
-        window.onload = loadDictionary;
-    </script>
+      // Group words by first letter of Niroq word
+      wordsData.sort((a, b) => a.niroq.localeCompare(b.niroq)).forEach(word => {
+        const letter = word.niroq.charAt(0).toUpperCase();
+        if (!grouped[letter]) grouped[letter] = [];
+        grouped[letter].push(word);
+      });
+
+      // Create each section
+      for (let i = 65; i <= 90; i++) {
+        const letter = String.fromCharCode(i);
+        const section = document.createElement("div");
+        section.classList.add("letter-section");
+        section.id = `letter-${letter}`;
+
+        const title = document.createElement("h2");
+        title.classList.add("letter-title");
+        title.textContent = letter;
+        section.appendChild(title);
+
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("dictionary-wrapper");
+
+        (grouped[letter] || []).forEach(word => {
+          const card = document.createElement("div");
+          card.classList.add("word-card");
+          card.innerHTML = `
+            <h3>${word.niroq}</h3>
+            <p class="translation"><strong>English:</strong> ${word.english}</p>
+            <p class="definition"><strong>Definition:</strong> ${word.definition}</p>
+            <p class="pronunciation"><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+          `;
+          wrapper.appendChild(card);
+        });
+
+        section.appendChild(wrapper);
+        dictionaryContainer.appendChild(section);
+      }
+    }
+
+    window.onload = loadDictionary;
+  </script>
 </body>
 </html>
