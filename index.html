@@ -1,64 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Niroq Language App</title>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Niroq App</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
+      font-family: 'Baloo 2', sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 0;
     }
-    .container {
-      width: 100%;
-      max-width: 600px;
-      margin: auto;
+
+    .app {
+      max-width: 400px;
+      margin: 50px auto;
       padding: 20px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
-    .btn {
-      background-color: #3490dc;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #58cc02;
+    }
+
+    .xp-bar {
+      height: 12px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .xp-fill {
+      height: 100%;
+      background: #58cc02;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-btn {
+      background: #e5e5e5;
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
       cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-      margin-top: 20px;
+      transition: 0.2s;
     }
-    .btn:hover {
-      background-color: #2779bd;
+
+    .option-btn:hover {
+      background: #d4f5bc;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #58cc02;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .next-btn:disabled {
+      background: #a2e28a;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1 class="text-3xl text-center text-blue-500 mb-4">Learn Niroq Language</h1>
+  <div class="app">
+    <h1>Niroq</h1>
 
-    <!-- XP Progress Bar -->
-    <div id="xpBar" class="bg-gray-300 h-4 rounded-full mb-6">
-      <div id="xpFill" class="bg-green-500 h-4 rounded-full" style="width: 0%;"></div>
+    <div class="xp-bar">
+      <div class="xp-fill" id="xpFill"></div>
     </div>
 
-    <!-- Lesson Content -->
-    <div id="lessonContent" class="space-y-4">
-      <div id="question" class="text-lg font-medium"></div>
-      <div id="options" class="space-y-2"></div>
+    <div class="lesson-area">
+      <div class="question" id="question">Click start to begin.</div>
+      <div class="options" id="options"></div>
+      <button class="next-btn" id="nextLessonBtn">Start Lesson</button>
     </div>
-
-    <!-- Next Lesson Button -->
-    <button id="nextLessonBtn" class="btn">Next Lesson</button>
   </div>
 
   <script>
-    // Firebase Config (replace with your config)
     const firebaseConfig = {
       apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
       authDomain: "spinktweet.firebaseapp.com",
@@ -69,93 +115,96 @@
       measurementId: "G-81YMX6VBK4"
     };
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // Sign in anonymously
-    auth.signInAnonymously().then(() => {
-      console.log("User signed in anonymously");
-      initializeUserData();
-    });
+    let userId = null;
+    let currentLessonIndex = -1;
+    let userXP = 0;
+    let userStreak = 0;
 
-    const userData = { xp: 0, streak: 0, level: 1, lessonsCompleted: [] };
-
-    const initializeUserData = () => {
-      const userId = auth.currentUser.uid;
-      const userDocRef = db.collection("users").doc(userId);
-      
-      userDocRef.get().then(docSnap => {
-        if (!docSnap.exists) {
-          userDocRef.set(userData);
-        }
-      });
-    };
-
-    // Sample Lesson Data for Chapter 1, Block 1
     const lessonData = [
       { question: "What is 'na' in English?", correctAnswer: "I", options: ["I", "you", "they"] },
-      { question: "What is 'fleeb' in English?", correctAnswer: "eat", options: ["eat", "sleep", "run"] },
+      { question: "What is 'zub' in English?", correctAnswer: "animal", options: ["tree", "animal", "city"] },
+      { question: "What is 'mii' in English?", correctAnswer: "cat", options: ["dog", "bird", "cat"] }
     ];
 
-    let currentLessonIndex = 0;
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const xpFill = document.getElementById("xpFill");
+    const nextBtn = document.getElementById("nextLessonBtn");
 
-    const updateXPBar = (xp) => {
-      const xpFill = document.getElementById("xpFill");
-      const xpBar = document.getElementById("xpBar");
-      const xpPercentage = (xp / 100) * 100;
-      xpFill.style.width = `${xpPercentage}%`;
+    const updateXPBar = () => {
+      const percent = (userXP % 100);
+      xpFill.style.width = `${percent}%`;
     };
 
-    const showLesson = () => {
+    const loadLesson = () => {
       const lesson = lessonData[currentLessonIndex];
-      const questionDiv = document.getElementById("question");
-      const optionsDiv = document.getElementById("options");
-
-      questionDiv.innerHTML = lesson.question;
-      optionsDiv.innerHTML = ""; // Clear old options
+      questionEl.innerText = lesson.question;
+      optionsEl.innerHTML = "";
+      nextBtn.disabled = true;
 
       lesson.options.forEach(option => {
-        const button = document.createElement("button");
-        button.classList.add("btn", "mb-2");
-        button.textContent = option;
-        button.onclick = () => checkAnswer(option, lesson.correctAnswer);
-        optionsDiv.appendChild(button);
+        const btn = document.createElement("div");
+        btn.className = "option-btn";
+        btn.innerText = option;
+        btn.onclick = () => checkAnswer(option, lesson.correctAnswer, btn);
+        optionsEl.appendChild(btn);
       });
     };
 
-    const checkAnswer = (selectedAnswer, correctAnswer) => {
-      const xp = 10; // XP per correct answer
-      if (selectedAnswer === correctAnswer) {
-        userData.xp += xp;
-        userData.streak += 1;
-        alert("Correct! +10 XP");
+    const checkAnswer = (selected, correct, btn) => {
+      if (selected === correct) {
+        btn.style.background = "#b5f3a2";
+        userXP += 10;
+        userStreak++;
+        saveProgress();
       } else {
-        userData.streak = 0;
-        alert("Incorrect, try again.");
+        btn.style.background = "#f3b2a2";
+        userStreak = 0;
+        saveProgress();
       }
 
-      // Update Firebase
-      const userId = auth.currentUser.uid;
-      const userDocRef = db.collection("users").doc(userId);
-      userDocRef.update({ xp: userData.xp, streak: userData.streak });
-
-      updateXPBar(userData.xp);
-      currentLessonIndex++;
-
-      if (currentLessonIndex < lessonData.length) {
-        showLesson();
-      } else {
-        alert("Lesson Completed!");
-      }
+      nextBtn.disabled = false;
+      document.querySelectorAll(".option-btn").forEach(b => b.onclick = null);
     };
 
-    const nextLessonButton = document.getElementById("nextLessonBtn");
-    nextLessonButton.addEventListener("click", () => {
-      if (currentLessonIndex === 0) {
-        showLesson();
+    const saveProgress = () => {
+      db.collection("users").doc(userId).set({
+        xp: userXP,
+        streak: userStreak
+      }, { merge: true });
+      updateXPBar();
+    };
+
+    nextBtn.onclick = () => {
+      if (currentLessonIndex + 1 >= lessonData.length) {
+        questionEl.innerText = "You've finished this chapter!";
+        optionsEl.innerHTML = "";
+        nextBtn.innerText = "Restart";
+        currentLessonIndex = -1;
+        return;
       }
+      currentLessonIndex++;
+      loadLesson();
+      nextBtn.innerText = "Next";
+    };
+
+    // Sign in and start
+    auth.signInAnonymously().then(() => {
+      userId = auth.currentUser.uid;
+      db.collection("users").doc(userId).get().then(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          userXP = data.xp || 0;
+          userStreak = data.streak || 0;
+        } else {
+          db.collection("users").doc(userId).set({ xp: 0, streak: 0 });
+        }
+        updateXPBar();
+      });
     });
   </script>
 
