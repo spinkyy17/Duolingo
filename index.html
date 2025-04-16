@@ -6,91 +6,87 @@
   <title>Niroq Dictionary</title>
   <style>
     body {
-      font-family: 'Georgia', serif;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
       margin: 0;
-      background: #f4f4f4;
+      padding: 0;
     }
 
     .container {
       max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-      background: white;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      font-size: 2.5em;
+      color: #333;
     }
 
     #searchBar {
       width: 100%;
-      padding: 10px;
-      font-size: 16px;
+      padding: 12px;
+      font-size: 1em;
+      margin-bottom: 20px;
       border: 1px solid #ccc;
-      margin-bottom: 20px;
-    }
-
-    .alphabetical-nav {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .alphabetical-nav a {
-      margin: 0 6px;
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
-    }
-
-    .alphabetical-nav a:hover {
-      color: #007BFF;
+      border-radius: 5px;
     }
 
     .dictionary-wrapper {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-start;
-      gap: 10px;
+      margin-top: 20px;
     }
 
     .word-card {
-      width: 170px;
-      background: #fafafa;
+      width: 150px;
+      margin: 10px;
+      background-color: #f9f9f9;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+      text-align: center;
       font-size: 0.9em;
     }
 
     .word-card h3 {
-      margin: 5px 0;
+      font-size: 1.2em;
+      margin-bottom: 5px;
+      color: #333;
     }
 
-    .word-card p {
-      margin: 5px 0;
+    .word-card .translation {
+      font-size: 0.9em;
+      color: #555;
+      margin-bottom: 5px;
     }
 
-    @media (max-width: 600px) {
-      .word-card {
-        width: 100%;
-      }
+    .word-card .definition {
+      font-size: 0.8em;
+      color: #777;
+      margin-bottom: 5px;
+    }
+
+    .word-card .pronunciation {
+      font-size: 0.8em;
+      color: #777;
     }
   </style>
 </head>
 <body>
+
   <div class="container">
     <h1>Niroq Dictionary</h1>
-    <input type="text" id="searchBar" placeholder="Search Niroq or English word..."/>
-
-    <div class="alphabetical-nav" id="alphabetNav">
-      <!-- A-Z Links -->
-    </div>
+    <input type="text" id="searchBar" placeholder="Search Niroq or English..."/>
 
     <div class="dictionary-wrapper" id="dictionaryContainer">
-      <!-- Word cards go here -->
+      <!-- Word cards appear here -->
     </div>
   </div>
 
@@ -118,46 +114,33 @@
       { niroq: "aqua", english: "water", definition: "A colorless, transparent liquid.", pronunciation: "ah-kwah" }
     ];
 
-    function loadAlphabetNav() {
-      const nav = document.getElementById("alphabetNav");
-      for (let i = 65; i <= 90; i++) {
-        const letter = String.fromCharCode(i);
-        const link = document.createElement("a");
-        link.href = `#${letter}`;
-        link.textContent = letter;
-        nav.appendChild(link);
-      }
-    }
-
-    function loadDictionary(words) {
-      const container = document.getElementById("dictionaryContainer");
-      container.innerHTML = "";
+    function renderDictionary(words) {
+      const container = document.getElementById('dictionaryContainer');
+      container.innerHTML = '';
       words.forEach(word => {
-        const card = document.createElement("div");
-        card.className = "word-card";
+        const card = document.createElement('div');
+        card.className = 'word-card';
         card.innerHTML = `
           <h3>${word.niroq}</h3>
-          <p><strong>English:</strong> ${word.english}</p>
-          <p><strong>Definition:</strong> ${word.definition}</p>
-          <p><strong>Pronunciation:</strong> ${word.pronunciation}</p>
+          <p class="translation"><strong>English:</strong> ${word.english}</p>
+          <p class="definition"><strong>Definition:</strong> ${word.definition}</p>
+          <p class="pronunciation"><strong>Pronunciation:</strong> ${word.pronunciation}</p>
         `;
         container.appendChild(card);
       });
     }
 
-    document.getElementById("searchBar").addEventListener("input", function (e) {
-      const query = e.target.value.toLowerCase();
+    document.getElementById('searchBar').addEventListener('input', function(e) {
+      const search = e.target.value.toLowerCase();
       const filtered = wordsData.filter(word =>
-        word.niroq.toLowerCase().includes(query) ||
-        word.english.toLowerCase().includes(query)
+        word.niroq.toLowerCase().includes(search) ||
+        word.english.toLowerCase().includes(search)
       );
-      loadDictionary(filtered);
+      renderDictionary(filtered);
     });
 
-    window.onload = function () {
-      loadAlphabetNav();
-      loadDictionary(wordsData);
-    };
+    window.onload = () => renderDictionary(wordsData);
   </script>
+
 </body>
 </html>
