@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Niroq Language App</title>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      background-color: #3490dc;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      background-color: #2779bd;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="text-3xl text-center text-blue-500 mb-4">Learn Niroq Language</h1>
+
+    <!-- XP Progress Bar -->
+    <div id="xpBar" class="bg-gray-300 h-4 rounded-full mb-6">
+      <div id="xpFill" class="bg-green-500 h-4 rounded-full" style="width: 0%;"></div>
+    </div>
+
+    <!-- Lesson Content -->
+    <div id="lessonContent" class="space-y-4">
+      <div id="question" class="text-lg font-medium"></div>
+      <div id="options" class="space-y-2"></div>
+    </div>
+
+    <!-- Next Lesson Button -->
+    <button id="nextLessonBtn" class="btn">Next Lesson</button>
+  </div>
+
+  <script>
+    // Firebase Config (replace with your config)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
+      authDomain: "spinktweet.firebaseapp.com",
+      projectId: "spinktweet",
+      storageBucket: "spinktweet.firebasestorage.app",
+      messagingSenderId: "848866063079",
+      appId: "1:848866063079:web:be2efce9b4c5ecc3956842",
+      measurementId: "G-81YMX6VBK4"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Sign in anonymously
+    auth.signInAnonymously().then(() => {
+      console.log("User signed in anonymously");
+      initializeUserData();
+    });
+
+    const userData = { xp: 0, streak: 0, level: 1, lessonsCompleted: [] };
+
+    const initializeUserData = () => {
+      const userId = auth.currentUser.uid;
+      const userDocRef = db.collection("users").doc(userId);
+      
+      userDocRef.get().then(docSnap => {
+        if (!docSnap.exists) {
+          userDocRef.set(userData);
+        }
+      });
+    };
+
+    // Sample Lesson Data for Chapter 1, Block 1
+    const lessonData = [
+      { question: "What is 'na' in English?", correctAnswer: "I", options: ["I", "you", "they"] },
+      { question: "What is 'fleeb' in English?", correctAnswer: "eat", options: ["eat", "sleep", "run"] },
+    ];
+
+    let currentLessonIndex = 0;
+
+    const updateXPBar = (xp) => {
+      const xpFill = document.getElementById("xpFill");
+      const xpBar = document.getElementById("xpBar");
+      const xpPercentage = (xp / 100) * 100;
+      xpFill.style.width = `${xpPercentage}%`;
+    };
+
+    const showLesson = () => {
+      const lesson = lessonData[currentLessonIndex];
+      const questionDiv = document.getElementById("question");
+      const optionsDiv = document.getElementById("options");
+
+      questionDiv.innerHTML = lesson.question;
+      optionsDiv.innerHTML = ""; // Clear old options
+
+      lesson.options.forEach(option => {
+        const button = document.createElement("button");
+        button.classList.add("btn", "mb-2");
+        button.textContent = option;
+        button.onclick = () => checkAnswer(option, lesson.correctAnswer);
+        optionsDiv.appendChild(button);
+      });
+    };
+
+    const checkAnswer = (selectedAnswer, correctAnswer) => {
+      const xp = 10; // XP per correct answer
+      if (selectedAnswer === correctAnswer) {
+        userData.xp += xp;
+        userData.streak += 1;
+        alert("Correct! +10 XP");
+      } else {
+        userData.streak = 0;
+        alert("Incorrect, try again.");
+      }
+
+      // Update Firebase
+      const userId = auth.currentUser.uid;
+      const userDocRef = db.collection("users").doc(userId);
+      userDocRef.update({ xp: userData.xp, streak: userData.streak });
+
+      updateXPBar(userData.xp);
+      currentLessonIndex++;
+
+      if (currentLessonIndex < lessonData.length) {
+        showLesson();
+      } else {
+        alert("Lesson Completed!");
+      }
+    };
+
+    const nextLessonButton = document.getElementById("nextLessonBtn");
+    nextLessonButton.addEventListener("click", () => {
+      if (currentLessonIndex === 0) {
+        showLesson();
+      }
+    });
+  </script>
+
+</body>
+</html>
