@@ -3,40 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Niroq App</title>
+  <title>Niroq Duolingo App</title>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Baloo 2', sans-serif;
-      background: #f2f2f2;
+      background: #f4f4f4;
       margin: 0;
       padding: 0;
     }
 
     .app {
       max-width: 400px;
-      margin: 50px auto;
-      padding: 20px;
+      margin: 30px auto;
       background: white;
       border-radius: 20px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      color: #58cc02;
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1rem;
+      background: #f0f0f0;
+      padding: 6px 12px;
+      border-radius: 12px;
     }
 
     .xp-bar {
-      height: 12px;
+      height: 10px;
       background: #e0e0e0;
       border-radius: 10px;
       overflow: hidden;
-      margin: 20px 0;
+      margin-bottom: 20px;
     }
 
     .xp-fill {
@@ -54,20 +69,28 @@
     .options {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .option-btn {
-      background: #e5e5e5;
+      background: #f7f7f7;
       padding: 12px;
       border-radius: 12px;
       text-align: center;
       cursor: pointer;
+      font-size: 1rem;
+      border: 2px solid transparent;
       transition: 0.2s;
     }
 
-    .option-btn:hover {
-      background: #d4f5bc;
+    .option-btn.correct {
+      background-color: #d4f8c5;
+      border-color: #58cc02;
+    }
+
+    .option-btn.incorrect {
+      background-color: #f8d4d4;
+      border-color: #ff4b4b;
     }
 
     .next-btn {
@@ -83,130 +106,158 @@
     }
 
     .next-btn:disabled {
-      background: #a2e28a;
+      background: #bde5a7;
       cursor: not-allowed;
+    }
+
+    .lesson-complete {
+      text-align: center;
+      font-size: 1.1rem;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div class="app">
-    <h1>Niroq</h1>
-
-    <div class="xp-bar">
-      <div class="xp-fill" id="xpFill"></div>
-    </div>
-
-    <div class="lesson-area">
-      <div class="question" id="question">Click start to begin.</div>
-      <div class="options" id="options"></div>
-      <button class="next-btn" id="nextLessonBtn">Start Lesson</button>
-    </div>
+<div class="app">
+  <div class="top-bar">
+    <div class="badge">❤️ <span id="lives">3</span></div>
+    <div class="badge">🔥 <span id="streak">0</span></div>
+    <div class="badge">⭐ <span id="xp">0</span></div>
   </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
-      authDomain: "spinktweet.firebaseapp.com",
-      projectId: "spinktweet",
-      storageBucket: "spinktweet.firebasestorage.app",
-      messagingSenderId: "848866063079",
-      appId: "1:848866063079:web:be2efce9b4c5ecc3956842",
-      measurementId: "G-81YMX6VBK4"
-    };
+  <div class="xp-bar">
+    <div class="xp-fill" id="xpFill"></div>
+  </div>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+  <div id="lessonArea">
+    <div class="question" id="question">Click start to begin.</div>
+    <div class="options" id="options"></div>
+    <button class="next-btn" id="nextLessonBtn">Start Lesson</button>
+  </div>
+</div>
 
-    let userId = null;
-    let currentLessonIndex = -1;
-    let userXP = 0;
-    let userStreak = 0;
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWDk_p33Y_jgPNJPHoJApEmo0W7Q9BhxA",
+    authDomain: "spinktweet.firebaseapp.com",
+    projectId: "spinktweet",
+    storageBucket: "spinktweet.firebasestorage.app",
+    messagingSenderId: "848866063079",
+    appId: "1:848866063079:web:be2efce9b4c5ecc3956842",
+    measurementId: "G-81YMX6VBK4"
+  };
 
-    const lessonData = [
-      { question: "What is 'na' in English?", correctAnswer: "I", options: ["I", "you", "they"] },
-      { question: "What is 'zub' in English?", correctAnswer: "animal", options: ["tree", "animal", "city"] },
-      { question: "What is 'mii' in English?", correctAnswer: "cat", options: ["dog", "bird", "cat"] }
-    ];
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
 
-    const questionEl = document.getElementById("question");
-    const optionsEl = document.getElementById("options");
-    const xpFill = document.getElementById("xpFill");
-    const nextBtn = document.getElementById("nextLessonBtn");
+  let userId = null;
+  let userXP = 0;
+  let userStreak = 0;
+  let userLives = 3;
+  let currentLessonIndex = -1;
+  let answered = false;
 
-    const updateXPBar = () => {
-      const percent = (userXP % 100);
-      xpFill.style.width = `${percent}%`;
-    };
+  const xpEl = document.getElementById("xp");
+  const streakEl = document.getElementById("streak");
+  const livesEl = document.getElementById("lives");
+  const xpFill = document.getElementById("xpFill");
+  const questionEl = document.getElementById("question");
+  const optionsEl = document.getElementById("options");
+  const nextBtn = document.getElementById("nextLessonBtn");
 
-    const loadLesson = () => {
-      const lesson = lessonData[currentLessonIndex];
-      questionEl.innerText = lesson.question;
-      optionsEl.innerHTML = "";
-      nextBtn.disabled = true;
+  const lessonData = [
+    { question: "What is 'na' in English?", correctAnswer: "I", options: ["I", "you", "they"] },
+    { question: "What is 'zub' in English?", correctAnswer: "animal", options: ["tree", "animal", "city"] },
+    { question: "What is 'mii' in English?", correctAnswer: "cat", options: ["dog", "bird", "cat"] }
+  ];
 
-      lesson.options.forEach(option => {
-        const btn = document.createElement("div");
-        btn.className = "option-btn";
-        btn.innerText = option;
-        btn.onclick = () => checkAnswer(option, lesson.correctAnswer, btn);
-        optionsEl.appendChild(btn);
-      });
-    };
+  const updateUI = () => {
+    xpEl.innerText = userXP;
+    streakEl.innerText = userStreak;
+    livesEl.innerText = userLives;
+    xpFill.style.width = `${(userXP % 100)}%`;
+  };
 
-    const checkAnswer = (selected, correct, btn) => {
-      if (selected === correct) {
-        btn.style.background = "#b5f3a2";
-        userXP += 10;
-        userStreak++;
-        saveProgress();
-      } else {
-        btn.style.background = "#f3b2a2";
-        userStreak = 0;
-        saveProgress();
-      }
+  const saveUserData = () => {
+    db.collection("users").doc(userId).set({
+      xp: userXP,
+      streak: userStreak,
+      lives: userLives
+    }, { merge: true });
+    updateUI();
+  };
 
-      nextBtn.disabled = false;
-      document.querySelectorAll(".option-btn").forEach(b => b.onclick = null);
-    };
+  const loadLesson = () => {
+    answered = false;
+    nextBtn.disabled = true;
 
-    const saveProgress = () => {
-      db.collection("users").doc(userId).set({
-        xp: userXP,
-        streak: userStreak
-      }, { merge: true });
-      updateXPBar();
-    };
+    const lesson = lessonData[currentLessonIndex];
+    questionEl.innerText = lesson.question;
+    optionsEl.innerHTML = "";
 
-    nextBtn.onclick = () => {
-      if (currentLessonIndex + 1 >= lessonData.length) {
-        questionEl.innerText = "You've finished this chapter!";
-        optionsEl.innerHTML = "";
-        nextBtn.innerText = "Restart";
-        currentLessonIndex = -1;
-        return;
-      }
-      currentLessonIndex++;
-      loadLesson();
-      nextBtn.innerText = "Next";
-    };
+    lesson.options.forEach(option => {
+      const btn = document.createElement("div");
+      btn.className = "option-btn";
+      btn.innerText = option;
 
-    // Sign in and start
-    auth.signInAnonymously().then(() => {
-      userId = auth.currentUser.uid;
-      db.collection("users").doc(userId).get().then(doc => {
-        if (doc.exists) {
-          const data = doc.data();
-          userXP = data.xp || 0;
-          userStreak = data.streak || 0;
+      btn.onclick = () => {
+        if (answered) return;
+        answered = true;
+        if (option === lesson.correctAnswer) {
+          btn.classList.add("correct");
+          userXP += 10;
+          userStreak += 1;
         } else {
-          db.collection("users").doc(userId).set({ xp: 0, streak: 0 });
+          btn.classList.add("incorrect");
+          userStreak = 0;
+          userLives -= 1;
         }
-        updateXPBar();
-      });
+
+        // Lock others
+        document.querySelectorAll(".option-btn").forEach(b => {
+          b.onclick = null;
+          if (b.innerText === lesson.correctAnswer) b.classList.add("correct");
+        });
+
+        nextBtn.disabled = false;
+        saveUserData();
+      };
+
+      optionsEl.appendChild(btn);
     });
-  </script>
+  };
+
+  nextBtn.onclick = () => {
+    currentLessonIndex++;
+
+    if (currentLessonIndex < lessonData.length) {
+      nextBtn.innerText = "Next";
+      loadLesson();
+    } else {
+      questionEl.innerText = "Chapter 1 Complete!";
+      optionsEl.innerHTML = `<div class="lesson-complete">Great job! Come back tomorrow for more.</div>`;
+      nextBtn.innerText = "Restart";
+      currentLessonIndex = -1;
+    }
+  };
+
+  auth.signInAnonymously().then(() => {
+    userId = auth.currentUser.uid;
+    db.collection("users").doc(userId).get().then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        userXP = data.xp || 0;
+        userStreak = data.streak || 0;
+        userLives = data.lives ?? 3;
+      } else {
+        db.collection("users").doc(userId).set({ xp: 0, streak: 0, lives: 3 });
+      }
+      updateUI();
+    });
+  });
+</script>
 
 </body>
 </html>
